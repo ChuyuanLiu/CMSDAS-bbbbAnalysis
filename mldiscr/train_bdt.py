@@ -20,7 +20,8 @@ arrs_bkg  = uproot.open(input_bkg)['bbbbTree']
 arrs_sig  = uproot.open(input_sig)['bbbbTree']
 
 ## convert to dataframes
-vars_training = [ 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt', 'HH_m', 'H1H2_deltaEta', 'H1_costhetaCM']
+vars_training = [ 'H1_m', 'H2_m', 'H1_pt', 'H2_pt', 'HH_m', 'HH_pt', 'H1_b1_m', 'H1_b2_m', 'H2_b1_m', 'H2_b2_m', 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt', 'H1_eta', 'H2_eta', 'HH_eta',, 'H1_b1_eta','H1_b2_eta','H2_b1_eta','H2_b2_eta']
+#, 'H1_phi', 'H2_phi', 'HH_phi',  'H1_b1_phi',  'H1_b2_phi',  'H2_b1_phi',  'H2_b2_phi', 
 
 # extra variables needed for preselections
 all_vars = vars_training + ['H1_m', 'H2_m', 'n_btag']
@@ -32,7 +33,7 @@ print "... converting to pandas"
 # data_sig = arrs_sig.pandas.df(all_vars, entrystop = 100000)
 
 data_bkg = arrs_bkg.pandas.df(all_vars + ['bkg_model_w'])
-data_sig = arrs_sig.pandas.df(all_vars)
+data_sig = arrs_sig.pandas.df(all_vars)# + ['btag_SF'])
 
 print "... preselecting data"
 
@@ -50,7 +51,7 @@ data_sig = data_sig[data_sig['chi'] < 30]
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
 data_bkg.drop('bkg_model_w', axis=1, inplace=True)
-data_sig['train_w'] = 1
+data_sig['train_w'] = 1 
 
 # normalise the sum of weights to unity
 data_bkg['train_w'] = data_bkg['train_w'].multiply(1./data_bkg['train_w'].sum())
@@ -116,7 +117,7 @@ def plot_ROC_curve(y_true, y_pred):
     plt.ylabel('True Positive Rate')
     plt.title('ROC curve')
     plt.legend(loc="lower right")
-    plt.savefig("bdt_ROC.png")
+    plt.savefig("bdt_ROC_try.png")
 
 y_true = all_data_test['target']
 y_pred = xg_reg.predict_proba(all_data_test[vars_training])[:,1] ## prob to be of class '1'
@@ -206,13 +207,13 @@ def plot_classifier_output():
         alabel.set_fontsize('small')
 
     # Save the result to png
-    plt.savefig("bdt_score_output.png")
+    plt.savefig("bdt_score_output_try.png")
 
 plot_classifier_output()
 # plot_classifier_output(xg_reg, all_data_train[vars_training], all_data_test[vars_training], all_data_train['target'], all_data_test['target'])
 
 ## save the model as pickle
-outname = 'bdt_training.pkl'
+outname = 'bdt_training_try.pkl'
 print '... pickling the output as', outname
 outfile = open(outname, 'wb')
 
