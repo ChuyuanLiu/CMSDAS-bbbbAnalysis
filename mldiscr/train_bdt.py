@@ -20,9 +20,8 @@ arrs_bkg  = uproot.open(input_bkg)['bbbbTree']
 arrs_sig  = uproot.open(input_sig)['bbbbTree']
 
 ## convert to dataframes
-vars_training = [ 'H1_m', 'H2_m', 'H1_pt', 'H2_pt', 'HH_m', 'HH_pt', 'H1_b1_m', 'H1_b2_m', 'H2_b1_m', 'H2_b2_m', 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt', 'H1_eta', 'H2_eta', 'HH_eta',, 'H1_b1_eta','H1_b2_eta','H2_b1_eta','H2_b2_eta']
+vars_training = [ 'H1_m', 'H2_m', 'H1_pt', 'H2_pt', 'H1_eta', 'H2_eta', 'HH_m', 'HH_pt', 'HH_eta', 'H1_b1_eta', 'H1_b2_eta', 'H2_b1_eta','H2_b2_eta','H1_b1_m', 'H1_b2_m', 'H2_b1_m', 'H2_b2_m', 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt']
 #, 'H1_phi', 'H2_phi', 'HH_phi',  'H1_b1_phi',  'H1_b2_phi',  'H2_b1_phi',  'H2_b2_phi', 
-
 # extra variables needed for preselections
 all_vars = vars_training + ['H1_m', 'H2_m', 'n_btag']
 all_vars = list(set(all_vars))
@@ -47,6 +46,8 @@ data_sig['chi'] = np.sqrt( (data_sig['H1_m']-120)*(data_sig['H1_m']-120)+(data_s
 
 data_bkg = data_bkg[data_bkg['chi'] < 30]
 data_sig = data_sig[data_sig['chi'] < 30]
+
+vars_training.append('chi')
 
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
@@ -73,11 +74,11 @@ xg_reg = xgb.XGBClassifier(
     colsample_bylevel = 1,
     colsample_bytree  = 1,
     gamma             = 0,
-    learning_rate     = 0.2,
+    learning_rate     = 0.3,
     max_delta_step    = 0,
     max_depth         = 3,
     min_child_weight  = 0.0001,
-    n_estimators      = 1000,
+    n_estimators      = 1200,
     n_jobs            = 4,
     nthread           = 10,
     objective         = 'binary:logistic',
@@ -117,7 +118,7 @@ def plot_ROC_curve(y_true, y_pred):
     plt.ylabel('True Positive Rate')
     plt.title('ROC curve')
     plt.legend(loc="lower right")
-    plt.savefig("bdt_ROC_try.png")
+    plt.savefig("bdt_ROC.png")
 
 y_true = all_data_test['target']
 y_pred = xg_reg.predict_proba(all_data_test[vars_training])[:,1] ## prob to be of class '1'
@@ -207,13 +208,13 @@ def plot_classifier_output():
         alabel.set_fontsize('small')
 
     # Save the result to png
-    plt.savefig("bdt_score_output_try.png")
+    plt.savefig("bdt_score_output.png")
 
 plot_classifier_output()
 # plot_classifier_output(xg_reg, all_data_train[vars_training], all_data_test[vars_training], all_data_train['target'], all_data_test['target'])
 
 ## save the model as pickle
-outname = 'bdt_training_try.pkl'
+outname = 'bdt_training.pkl'
 print '... pickling the output as', outname
 outfile = open(outname, 'wb')
 
