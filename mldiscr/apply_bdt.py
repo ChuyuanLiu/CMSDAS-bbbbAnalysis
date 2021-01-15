@@ -33,5 +33,5 @@ def apply_bdt(input_path, output_path = ""):
     output_arrs["bdt_score"]=pred
     output_arrs.to_root(output_path + filename, key="bbbbTree")
 
-input_path='../analysis/objects_gg_HH_bbbb_SM.root'
+input_path='../../CMSDAS-minebbbbanalysis/analysis/objects_gg_HH_bbbb_SM.root'
 apply_bdt(input_path)
