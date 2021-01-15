@@ -20,8 +20,8 @@ arrs_bkg  = uproot.open(input_bkg)['bbbbTree']
 arrs_sig  = uproot.open(input_sig)['bbbbTree']
 
 ## convert to dataframes
-vars_training = [ 'H1_m', 'H2_m', 'H1_pt', 'H2_pt', 'H1_eta', 'H2_eta', 'HH_m', 'HH_pt', 'HH_eta', 'H1_b1_eta', 'H1_b2_eta', 'H2_b1_eta','H2_b2_eta','H1_b1_m', 'H1_b2_m', 'H2_b1_m', 'H2_b2_m', 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt']
-#, 'H1_phi', 'H2_phi', 'HH_phi',  'H1_b1_phi',  'H1_b2_phi',  'H2_b1_phi',  'H2_b2_phi', 
+vars_training = ['H1_costhetaCM' , 'H1_m', 'H2_m', 'H1_pt', 'H2_pt', 'HH_m', 'HH_pt', 'H1_b1_m', 'H1_b2_m', 'H2_b1_m', 'H2_b2_m', 'H1_b1_pt', 'H1_b2_pt', 'H2_b1_pt', 'H2_b2_pt', 'H1_eta', 'H2_eta', 'HH_eta', 'H1_b1_eta', 'H1_b2_eta', 'H2_b1_eta','H2_b2_eta']
+
 # extra variables needed for preselections
 all_vars = vars_training + ['H1_m', 'H2_m', 'n_btag']
 all_vars = list(set(all_vars))
@@ -47,7 +47,6 @@ data_sig['chi'] = np.sqrt( (data_sig['H1_m']-120)*(data_sig['H1_m']-120)+(data_s
 data_bkg = data_bkg[data_bkg['chi'] < 30]
 data_sig = data_sig[data_sig['chi'] < 30]
 
-vars_training.append('chi')
 
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
@@ -77,9 +76,9 @@ xg_reg = xgb.XGBClassifier(
     learning_rate     = 0.3,
     max_delta_step    = 0,
     max_depth         = 3,
-    min_child_weight  = 0.0001,
+    min_child_weight  = 0.001,
     n_estimators      = 1200,
-    n_jobs            = 4,
+    n_jobs            = 5,
     nthread           = 10,
     objective         = 'binary:logistic',
     random_state      = 0,
