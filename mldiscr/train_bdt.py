@@ -32,7 +32,7 @@ print "... converting to pandas"
 # data_sig = arrs_sig.pandas.df(all_vars, entrystop = 100000)
 
 data_bkg = arrs_bkg.pandas.df(all_vars + ['bkg_model_w'])
-data_sig = arrs_sig.pandas.df(all_vars)# + ['btag_SF'])
+data_sig = arrs_sig.pandas.df(all_vars + ['trigger_SF', 'btag_SF'])
 
 print "... preselecting data"
 
@@ -41,8 +41,8 @@ data_bkg = data_bkg[data_bkg['n_btag'] == 3]
 data_sig = data_sig[data_sig['n_btag'] >= 4]
 
 # restrict training to the signal region
-data_bkg['chi'] = np.sqrt( (data_bkg['H1_m']-120)*(data_bkg['H1_m']-120)+(data_bkg['H2_m']-110)*(data_bkg['H2_m']-110))
-data_sig['chi'] = np.sqrt( (data_sig['H1_m']-120)*(data_sig['H1_m']-120)+(data_sig['H2_m']-110)*(data_sig['H2_m']-110))
+data_bkg['chi'] = np.sqrt( (data_bkg['H1_m']-125)*(data_bkg['H1_m']-125)+(data_bkg['H2_m']-120)*(data_bkg['H2_m']-120))
+data_sig['chi'] = np.sqrt( (data_sig['H1_m']-125)*(data_sig['H1_m']-125)+(data_sig['H2_m']-120)*(data_sig['H2_m']-120))
 
 data_bkg = data_bkg[data_bkg['chi'] < 30]
 data_sig = data_sig[data_sig['chi'] < 30]
@@ -50,7 +50,9 @@ data_sig = data_sig[data_sig['chi'] < 30]
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
 data_bkg.drop('bkg_model_w', axis=1, inplace=True)
-data_sig['train_w'] = 1 
+data_sig['train_w'] = data_sig['btag_SF']
+data_sig.drop('trigger_SF', axis=1, inplace=True)
+data_sig.drop('btag_SF', axis=1, inplace=True)
 
 # normalise the sum of weights to unity
 data_bkg['train_w'] = data_bkg['train_w'].multiply(1./data_bkg['train_w'].sum())
@@ -76,7 +78,7 @@ xg_reg = xgb.XGBClassifier(
     max_delta_step    = 0,
     max_depth         = 3,
     min_child_weight  = 0.0001,
-    n_estimators      = 1100,
+    n_estimators      = 1600,
     n_jobs            = 5,
     nthread           = 10,
     objective         = 'binary:logistic',

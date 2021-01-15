@@ -71,11 +71,11 @@ std::vector<jet_t> bbbb_jets_idxs_BothClosestToDiagonal(const std::vector<jet_t>
     //Do you add b-jet regression into the pairing?
     // bool breg = any_cast<bool>(parameterList_->at("BjetRegression"));
 
-    bool breg = false;
+    bool breg = true;
     // float targetHiggsMass1 = any_cast<float>(parameterList_->at("LeadingHiggsMass"));
     // float targetHiggsMass2 = any_cast<float>(parameterList_->at("SubleadingHiggsMass"));
-    float targetHiggsMass1 = 120;
-    float targetHiggsMass2 = 110;
+    float targetHiggsMass1 = 125;
+    float targetHiggsMass2 = 120;
 
     std::vector<TLorentzVector> p4s;
 
