@@ -10,6 +10,9 @@ from matplotlib import pyplot as plt
 import pickle
 import root_pandas
 import os
+import ROOT
+
+lumi = 35922
 
 infile = open('bdt_training.pkl', 'rb')
 in_data = pickle.load(infile)
@@ -37,30 +40,45 @@ def save_bdt(input_path, output_path = ""):
     return output_path + filename
 
 # output_tree is one of 'signal', 'background', 'data'
-def plot_bdt(input_path, output_path, output_tree):
-    vars_selection = ['n_btag', 'chi', 'bdt_score', 'trigger_SF', 'btag_SF', 'xs', 'luminosityBlock'] 
+def selection(input_path, output_path, output_tree):
+    vars_selection = ['n_btag', 'chi', 'bdt_score', 'trigger_SF', 'btag_SF', 'xs', 'norm_weight'] 
     if output_tree is 'background':
-        vars_selection = ['n_btag', 'chi', 'bdt_score', 'bkg_model_w' , 'xs', 'luminosityBlock']
+        vars_selection = ['n_btag', 'chi', 'bdt_score', 'bkg_model_w']
     if output_tree is 'data':
-        vars_selection = ['n_btag', 'chi', 'bdt_score' , 'xs', 'luminosityBlock']
+        vars_selection = ['n_btag', 'chi', 'bdt_score']
     input_data = uproot.open(input_path)['bbbbTree'].pandas.df(vars_selection)
     # n btag selection
-    if 'background' not in output_tree:
+    if output_tree is 'signal':
         print '... making n btag selection for ' + output_tree
         input_data = input_data[input_data['n_btag'] >= 4]
     # signal region
     print '... making signal region selection for ' + output_tree
     input_data = input_data[input_data['chi'] < 30]
-    print '... saving bdt hists'
-    vars_saving = ['bdt_score', 'xs', 'luminosityBlock', 'trigger_SF', 'btag_SF']
-    if 'background' in output_tree:
-        vars_saving = ['bdt_score', 'xs', 'luminosityBlock', 'bkg_model_w']
-    if 'data' in output_tree:
-        vars_saving = ['bdt_score', 'xs', 'luminosityBlock']
+    print '... saving selected events'
+    vars_saving = ['bdt_score', 'xs', 'trigger_SF', 'btag_SF', 'norm_weight']
+    if output_tree is 'background':
+        vars_saving = ['bdt_score', 'bkg_model_w']
+    if output_tree is 'data':
+        vars_saving = ['bdt_score']
     output_data = input_data[vars_saving]
     output_data.to_root(output_path, key = output_tree, mode = 'a')
 
-def make_hists():
+
+def make_hists(data, output_tree):
+    print '... making ' + output_tree + ' histogram'
+    hfile = ROOT.TFile(output_tree + '.root', 'recreate')
+    hist = ROOT.TH1F('Histogram', output_tree, 20, 0, 1)
+    data = data[output_tree].pandas.df()
+    for index, row in data.iterrows():
+        weight = 1
+        if output_tree is 'signal':
+            weight = row ['btag_SF'] * lumi * row['xs'] * row['norm_weight'] # * row['trigger_SF'] 
+        if output_tree is 'background':
+            weight = row['bkg_model_w']
+        hist.Fill(row['bdt_score'], weight)
+    print '... saving ' + output_tree + ' histogram'
+    hfile.Write()
+    
     
 signal_path = '../analysis/objects_gg_HH_bbbb_SM.root'
 signal_path = save_bdt(signal_path)
@@ -75,6 +93,11 @@ output_path = 'bdt_plots.root'
 if os.path.isfile(output_path):
     os.remove(output_path)
 
-plot_bdt(signal_path, output_path, 'signal')
-plot_bdt(background_path, output_path, 'background')
-plot_bdt(background_path, output_path, 'data')
+selection(signal_path, output_path, 'signal')
+selection(background_path, output_path, 'background')
+selection(data_path, output_path, 'data')
+
+data = uproot.open(output_path)
+make_hists(data,'signal') 
+#make_hists(data, 'background')
+#make_hists(data, 'data')
