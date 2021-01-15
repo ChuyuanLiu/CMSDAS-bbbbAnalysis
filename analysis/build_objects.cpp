@@ -212,7 +212,7 @@ int main(int argc, char** argv)
             // Pay attention to provide the correct variable to estract the trigger efficiency!!
             std::vector<float> jetPtVector {jet1.pt, jet2.pt, jet3.pt, jet4.pt};
             // Remember to order the 4 jets by pT!! (search for std::sort)
-            // std::sort...;
+            // std::sort...; 
             std::sort(jetPtVector.begin(), jetPtVector.end(), std::greater<>());
 
             // Estract the efficiency for the four filters considered in data
@@ -235,7 +235,13 @@ int main(int argc, char** argv)
             float mcEfficiency = (mcEfficiency_Double90Quad30) + mcEfficiency_Quad45_QuadCentralJet45 - (mcEfficiency_Double90Quad30 * mcEfficiency_And_QuadCentralJet45); //-999.;
 
             // Calculate the trigger scale factor (data/mc)
-            otree.trigger_SF_ = dataEfficiency / mcEfficiency; //;-999.;
+             otree.trigger_SF_ = dataEfficiency / mcEfficiency;
+            
+            otree.Jet1Pt = jetPtVector[0];
+            otree.Jet2Pt = jetPtVector[1];
+            otree.Jet3Pt = jetPtVector[2];
+            otree.Jet4Pt = jetPtVector[3];
+            
             otree.dataEfficiency_Double90Quad30_QuadCentralJet30 = dataEfficiency_Double90Quad30_QuadCentralJet30;
             otree.dataEfficiency_Double90Quad30_DoubleCentralJet90 = dataEfficiency_Double90Quad30_DoubleCentralJet90;
             otree.dataEfficiency_Quad45_QuadCentralJet45 = dataEfficiency_Quad45_QuadCentralJet45;
@@ -247,6 +253,7 @@ int main(int argc, char** argv)
             otree.mcEfficiency_Quad45_QuadCentralJet45 = mcEfficiency_Quad45_QuadCentralJet45;
             otree.mcEfficiency_And_QuadCentralJet45 = mcEfficiency_And_QuadCentralJet45;
             otree.mcEfficiency = mcEfficiency;
+            
         }
         
 
