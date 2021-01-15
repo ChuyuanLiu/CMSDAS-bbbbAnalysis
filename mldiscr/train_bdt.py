@@ -50,7 +50,7 @@ data_sig = data_sig[data_sig['chi'] < 30]
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
 data_bkg.drop('bkg_model_w', axis=1, inplace=True)
-data_sig['train_w'] = data_sig['btag_SF']
+data_sig['train_w'] = data_sig['trigger_SF'] * data_sig['btag_SF']
 data_sig.drop('trigger_SF', axis=1, inplace=True)
 data_sig.drop('btag_SF', axis=1, inplace=True)
 
