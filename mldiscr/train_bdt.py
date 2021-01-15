@@ -32,7 +32,7 @@ print "... converting to pandas"
 # data_sig = arrs_sig.pandas.df(all_vars, entrystop = 100000)
 
 data_bkg = arrs_bkg.pandas.df(all_vars + ['bkg_model_w'])
-data_sig = arrs_sig.pandas.df(all_vars)# + ['btag_SF'])
+data_sig = arrs_sig.pandas.df(all_vars + ['trigger_SF', 'bTag_SF'])
 
 print "... preselecting data"
 
@@ -51,7 +51,9 @@ data_sig = data_sig[data_sig['chi'] < 30]
 ## for the signal, add a fake weight column
 data_bkg['train_w'] = data_bkg['bkg_model_w']
 data_bkg.drop('bkg_model_w', axis=1, inplace=True)
-data_sig['train_w'] = 1 #trigger weight 
+data_sig['train_w'] = data_sig['trigger_SF'] * data_sig['bTag_SF']
+data_sig.drop('trigger_SF', axis=1, inplace=True)
+data_sig.drop('bTag_SF', axis=1, inplace=True)
 
 # normalise the sum of weights to unity
 data_bkg['train_w'] = data_bkg['train_w'].multiply(1./data_bkg['train_w'].sum())
