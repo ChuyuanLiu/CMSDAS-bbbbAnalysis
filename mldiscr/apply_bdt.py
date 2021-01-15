@@ -38,7 +38,7 @@ def save_bdt(input_path, output_path = ""):
 
 # output_tree is one of 'signal', 'background', 'data'
 def plot_bdt(input_path, output_path, output_tree):
-    vars_selection = ['n_btag', 'chi', 'bdt_score', 'trigger_SF', 'bTag_SF', 'xs', 'luminosityBlock'] 
+    vars_selection = ['n_btag', 'chi', 'bdt_score', 'trigger_SF', 'btag_SF', 'xs', 'luminosityBlock'] 
     if output_tree is 'background':
         vars_selection = ['n_btag', 'chi', 'bdt_score', 'bkg_model_w' , 'xs', 'luminosityBlock']
     if output_tree is 'data':
@@ -52,7 +52,7 @@ def plot_bdt(input_path, output_path, output_tree):
     print '... making signal region selection for ' + output_tree
     input_data = input_data[input_data['chi'] < 30]
     print '... saving bdt hists'
-    vars_saving = ['bdt_score', 'xs', 'luminosityBlock', 'trigger_SF', 'bTag_SF']
+    vars_saving = ['bdt_score', 'xs', 'luminosityBlock', 'trigger_SF', 'btag_SF']
     if 'background' in output_tree:
         vars_saving = ['bdt_score', 'xs', 'luminosityBlock', 'bkg_model_w']
     if 'data' in output_tree:
